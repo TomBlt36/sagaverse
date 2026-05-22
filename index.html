@@ -541,13 +541,17 @@ const items = [
 
     async function saveRemote() {
       if (!currentUser || !remoteReady) return;
-      await setDoc(doc(db, "users", currentUser.uid), {
-        pseudo: currentUser.displayName || "",
-        email: currentUser.email,
-        checked,
-        favorites,
-        updatedAt: serverTimestamp()
-      }, { merge: true });
+      try {
+        await setDoc(doc(db, "users", currentUser.uid), {
+          pseudo: currentUser.displayName || "",
+          email: currentUser.email,
+          checked,
+          favorites,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+      } catch (error) {
+        console.error("Erreur sauvegarde Firebase:", error);
+      }
     }
 
     async function loadUserData(user) {
@@ -567,7 +571,7 @@ const items = [
         if (data.pseudo) {
           $("topAccountName").textContent = data.pseudo;
           $("homeTopAccountName").textContent = data.pseudo;
-          $("authStatus").textContent = `Synchronisé avec ${data.pseudo}.`;
+          if ($("authStatus")) $("authStatus").textContent = `Synchronisé avec ${data.pseudo}.`;
         }
       } else {
         checked = {};
@@ -631,7 +635,7 @@ const items = [
       $("homeUserTopBar").classList.add("hidden");
       $("homeUserTopBar").classList.remove("flex");
 
-      $("authStatus").textContent = "Connecte-toi pour synchroniser ta progression.";
+      if ($("authStatus")) $("authStatus").textContent = "Connecte-toi pour synchroniser ta progression.";
       render();
     }
 
@@ -653,7 +657,7 @@ const items = [
       const display = user.displayName || user.email;
       $("topAccountName").textContent = display;
       $("homeTopAccountName").textContent = display;
-      $("authStatus").textContent = user.displayName ? `Synchronisé avec ${user.displayName}.` : "Synchronisation automatique activée.";
+      if ($("authStatus")) $("authStatus").textContent = user.displayName ? `Synchronisé avec ${user.displayName}.` : "Synchronisation automatique activée.";
       $("loginPage").classList.add("hidden");
       $("signupPage").classList.add("hidden");
     }
@@ -729,14 +733,15 @@ const items = [
     }
 
     function render() {
-      const done = Object.values(checked).filter(Boolean).length;
-      const percent = Math.round((done / items.length) * 100);
-      const next = items.find(([num]) => !checked[num]);
+      const releasedItems = items.filter(([, , , year]) => typeof year !== "string");
+      const done = releasedItems.filter(([num]) => !!checked[num]).length;
+      const percent = Math.round((done / releasedItems.length) * 100);
+      const next = releasedItems.find(([num]) => !checked[num]);
 
       $("progressText").textContent = percent + "%";
       $("progressBar").style.width = percent + "%";
       $("seenText").textContent = done + " vus";
-      $("remainingText").textContent = (items.length - done) + " restants";
+      $("remainingText").textContent = (releasedItems.length - done) + " restants";
       $("nextTitle").textContent = next ? `${next[0]}. ${next[1]}` : "Tout est terminé ";
       $("nextMeta").textContent = next ? `${next[2] === "film" ? "Film" : "Série"} · ${next[3]}` : "Bravo";
 
@@ -1094,6 +1099,12 @@ const items = [
       $("mcuApp").style.display = "block";
       showMainApp();
       render();
+    });
+
+
+
+    window.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") saveRemote();
     });
 
     onAuthStateChanged(auth, async (user) => {
