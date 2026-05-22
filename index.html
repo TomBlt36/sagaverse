@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SAGAVERSE</title>
+  <title>MCU Watchlist</title>
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
@@ -249,6 +249,16 @@
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  
+    #mcuApp,
+    #homePage{
+      width:100%;
+      min-height:100vh;
+    }
+
+    main{
+      max-width:none !important;
+    }
   </style>
 </head>
 
@@ -263,7 +273,7 @@
     <div class="bubble bottom-[10%] left-[25%] h-96 w-96 bg-purple-500"></div>
     <div class="bubble bottom-[15%] right-[20%] h-64 w-64 bg-blue-500"></div>
   </div>
-  <main class="relative mx-auto max-w-6xl px-4 pb-10 pt-5 md:px-8 md:pt-10">
+  <main class="relative w-full min-h-screen px-6 pb-10 pt-5 md:px-12 md:pt-8">
     <section id="homePage" class="mb-8">
       <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
         <button id="homeMainBtn" class="rounded-2xl border border-white/10 bg-white/8 px-5 py-3 text-sm font-black text-slate-200 transition hover:bg-white/10">
@@ -433,7 +443,7 @@
       </div>
     </section>
 
-    <section id="list" class="grid gap-3 md:grid-cols-2"></section>
+    <section id="list" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3"></section>
   </section>
   </main>
 
@@ -779,7 +789,7 @@ const items = [
       }
 
       $("filtersSection").style.display = "block";
-      $("list").className = "grid gap-3 md:grid-cols-2";
+      $("list").className = "grid gap-3 md:grid-cols-2 xl:grid-cols-3";
 
       $("list").innerHTML = filteredItems.map(([num, title, type, year, tmdbId]) => {
         const isChecked = !!checked[num];
