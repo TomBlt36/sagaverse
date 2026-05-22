@@ -362,26 +362,47 @@
           </div>
         </div>
       </section>
-    <section class="mb-8 flex flex-wrap items-center justify-between gap-6">
-      <div class="flex items-center gap-5">
-        <img src="/sagaverse-logo.png" alt="SagaVerse" class="brand-logo-small" style="width:120px;height:120px;filter:drop-shadow(0 0 35px rgba(250,204,21,.45));" />
-        <h1 class="text-6xl font-black leading-none md:text-8xl">
-          <span class="gold-text">MCU</span>
-        </h1>
-      </div>
+    <section class="mb-10 flex flex-col items-start gap-5 md:flex-row md:items-end md:justify-between">
+  <div class="flex items-center gap-5">
+    <img
+      src="/sagaverse-logo.png"
+      alt="SagaVerse"
+      class="brand-logo-small"
+      style="
+        width:140px;
+        height:140px;
+        object-fit:contain;
+        filter:drop-shadow(0 0 45px rgba(250,204,21,.28));
+        mix-blend-mode:screen;
+        opacity:.96;
+      "
+    />
+  </div>
 
-      <div class="min-w-[220px] rounded-3xl border border-yellow-300/15 bg-black/20 p-5">
-        <p class="text-xs font-black uppercase tracking-widest text-slate-400">Progression</p>
-        <p id="progressText" class="mt-1 text-4xl font-black">0%</p>
-        <div class="mt-4 h-3 overflow-hidden rounded-full bg-white/10">
-          <div id="progressBar" class="h-full rounded-full bg-gradient-to-r from-yellow-400 to-amber-700 transition-all" style="width:0%"></div>
-        </div>
-        <div class="mt-3 flex justify-between text-xs font-bold text-slate-300">
-          <span id="seenText">0 vus</span>
-          <span id="remainingText">56 restants</span>
-        </div>
-      </div>
-    </section>
+  <div class="flex-1 text-left md:pl-4">
+    <h1
+      class="gold-text text-6xl font-black tracking-tight md:text-8xl"
+      style="
+        line-height:.95;
+        text-shadow:0 0 40px rgba(250,204,21,.08);
+      "
+    >
+      MCU
+    </h1>
+  </div>
+
+  <div class="min-w-[220px] rounded-3xl border border-yellow-300/10 bg-black/10 p-5 backdrop-blur-xl">
+    <p class="text-xs font-black uppercase tracking-widest text-slate-400">Progression</p>
+    <p id="progressText" class="mt-1 text-4xl font-black">0%</p>
+    <div class="mt-4 h-3 overflow-hidden rounded-full bg-white/10">
+      <div id="progressBar" class="h-full rounded-full bg-gradient-to-r from-yellow-400 to-amber-700 transition-all" style="width:0%"></div>
+    </div>
+    <div class="mt-3 flex justify-between text-xs font-bold text-slate-300">
+      <span id="seenText">0 vus</span>
+      <span id="remainingText">56 restants</span>
+    </div>
+  </div>
+</section>
 
     <section class="mb-5 grid gap-3 md:grid-cols-2">
       <div class="glass rounded-3xl p-5">
@@ -541,17 +562,13 @@ const items = [
 
     async function saveRemote() {
       if (!currentUser || !remoteReady) return;
-      try {
-        await setDoc(doc(db, "users", currentUser.uid), {
-          pseudo: currentUser.displayName || "",
-          email: currentUser.email,
-          checked,
-          favorites,
-          updatedAt: serverTimestamp()
-        }, { merge: true });
-      } catch (error) {
-        console.error("Erreur sauvegarde Firebase:", error);
-      }
+      await setDoc(doc(db, "users", currentUser.uid), {
+        pseudo: currentUser.displayName || "",
+        email: currentUser.email,
+        checked,
+        favorites,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
     }
 
     async function loadUserData(user) {
@@ -1099,12 +1116,6 @@ const items = [
       $("mcuApp").style.display = "block";
       showMainApp();
       render();
-    });
-
-
-
-    window.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "hidden") saveRemote();
     });
 
     onAuthStateChanged(auth, async (user) => {
