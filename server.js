@@ -5,16 +5,19 @@ const path = require("path");
 const PORT = process.env.PORT || 3000;
 
 const server = http.createServer((req, res) => {
-  const filePath = path.join(__dirname, "index.html");
+  let filePath = path.join(__dirname, req.url === "/" ? "index.html" : req.url);
 
-  fs.readFile(filePath, "utf8", (err, content) => {
+  fs.readFile(filePath, (err, content) => {
     if (err) {
-      res.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
-      res.end("Erreur : index.html introuvable");
+      res.writeHead(404);
+      res.end("Fichier introuvable");
       return;
     }
 
-    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    const ext = path.extname(filePath);
+    const type = ext === ".png" ? "image/png" : "text/html; charset=utf-8";
+
+    res.writeHead(200, { "Content-Type": type });
     res.end(content);
   });
 });
