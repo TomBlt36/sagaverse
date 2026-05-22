@@ -373,13 +373,12 @@
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(250,204,21,.10),transparent_45%)]"></div>
       <div class="absolute -right-20 -top-20 h-56 w-56 rounded-full border border-yellow-300/20"></div>
       <div class="absolute -left-16 bottom-[-90px] h-64 w-64 rounded-full border border-purple-300/15"></div>
-      <div class="grid gap-6 md:grid-cols-[1fr_320px] md:items-end">
-        <div>
-          <div class="mb-3 flex flex-col items-center justify-center text-center gap-5">
-            <img src="/sagaverse-logo.png" alt="SagaVerse" class="brand-logo-small" style="width:130px;height:130px;filter:drop-shadow(0 0 35px rgba(250,204,21,.45));" />
+      <div class="flex items-start justify-between gap-6">
+        <div class="flex items-center gap-5">
+            <img src="/sagaverse-logo.png" alt="SagaVerse" class="brand-logo-small" style="width:110px;height:110px;filter:drop-shadow(0 0 35px rgba(250,204,21,.45));" />
             <div>
               
-              <h1 class="text-6xl font-black leading-none md:text-8xl">
+              <h1 class="text-5xl font-black leading-none md:text-7xl">
                 <span class="gold-text">MCU</span>
               </h1>
             </div>
@@ -387,12 +386,7 @@
           
         </div>
 
-        <div class="rounded-3xl border border-white/10 bg-black/25 p-5">
-          <p class="text-xs font-black uppercase tracking-widest text-slate-400">Progression</p>
-          <p id="progressText" class="mt-1 text-5xl font-black">0%</p>
-          <div class="mt-4 h-3 overflow-hidden rounded-full bg-white/10">
-            <div id="progressBar" class="h-full rounded-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all" style="width:0%"></div>
-          </div>
+        </div>
           <div class="mt-3 flex justify-between text-xs font-bold text-slate-300">
             <span id="seenText">0 vus</span>
             <span id="remainingText">56 restants</span>
@@ -401,7 +395,7 @@
       </div>
     </section>
 
-    <section class="mb-5 grid gap-3 md:grid-cols-3">
+    <section class="mb-5 grid gap-3 md:grid-cols-2">
       <div class="glass rounded-3xl p-5">
         <p class="mb-2 text-xs font-black uppercase tracking-widest text-slate-400">Prochain</p>
         <p id="nextTitle" class="text-lg font-black">1. Captain America: The First Avenger</p>
@@ -413,10 +407,7 @@
         <input id="searchInput" placeholder="Titre, année ou numéro..." class="w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm outline-none placeholder:text-slate-500 focus:border-blue-400" />
       </div>
 
-      <div class="glass rounded-3xl p-5">
-        <p class="mb-3 text-xs font-black uppercase tracking-widest text-slate-400">Compte</p>
-        <p id="authStatus" class="text-sm font-bold text-slate-300">Connecte-toi pour synchroniser ta progression.</p>
-      </div>
+      
     </section>
 
     <section class="mb-5 rounded-3xl border border-white/10 bg-slate-950/85 p-2 backdrop-blur-xl">
