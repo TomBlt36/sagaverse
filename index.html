@@ -249,10 +249,55 @@
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    body{
+      overflow-x:hidden;
+    }
+
+    #mcuApp,
+    #homePage{
+      width:100%;
+      min-height:100vh;
+    }
+
+    .hero-bg{
+      position:fixed;
+      inset:0;
+      z-index:-5;
+      pointer-events:none;
+      background:
+        radial-gradient(circle at 18% 16%, rgba(250,204,21,.10), transparent 22%),
+        radial-gradient(circle at 78% 24%, rgba(168,85,247,.12), transparent 26%),
+        radial-gradient(circle at 55% 80%, rgba(59,130,246,.10), transparent 30%),
+        linear-gradient(180deg,#02040a 0%,#050816 38%,#090f1f 72%,#02040a 100%);
+    }
+
+    .hero-bg::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,.88) 1px, transparent 1.5px),
+        radial-gradient(circle, rgba(250,204,21,.7) 1px, transparent 1.5px),
+        radial-gradient(circle, rgba(255,255,255,.36) 2px, transparent 2.5px);
+      background-size:140px 140px, 230px 230px, 360px 360px;
+      opacity:.42;
+    }
+
+    .hero-bg::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,.55), transparent 28%, transparent 72%, rgba(0,0,0,.45)),
+        linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45));
+    }
+
   </style>
 </head>
 
 <body>
+  <div class="hero-bg"></div>
   <div class="marvel-intro">
     <div class="marvel-logo">MCU</div>
   </div>
@@ -263,7 +308,7 @@
     <div class="bubble bottom-[10%] left-[25%] h-96 w-96 bg-purple-500"></div>
     <div class="bubble bottom-[15%] right-[20%] h-64 w-64 bg-blue-500"></div>
   </div>
-  <main class="relative mx-auto max-w-6xl px-4 pb-10 pt-5 md:px-8 md:pt-10">
+  <main class="relative w-full min-h-screen px-6 pb-10 pt-5 md:px-12 md:pt-8">
     <section id="homePage" class="mb-8">
       <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
         <button id="homeMainBtn" class="rounded-2xl border border-white/10 bg-white/8 px-5 py-3 text-sm font-black text-slate-200 transition hover:bg-white/10">
@@ -280,7 +325,7 @@
           <button id="homeTopLogoutBtn" class="rounded-xl bg-red-600/80 px-3 py-2 text-xs font-black text-white">Déconnexion</button>
         </div>
       </div>
-      <div class="glass overflow-hidden rounded-[2.5rem] p-6 md:p-10">
+      <div class="glass overflow-hidden rounded-[2.5rem] p-6 md:p-10 xl:p-12">
         <div class="mb-8 flex flex-col items-center text-center">
           <img src="/sagaverse-logo.png" alt="SagaVerse" class="brand-logo mb-4" />
           
@@ -362,44 +407,26 @@
           </div>
         </div>
       </section>
-    <section class="mb-10 flex items-start justify-between gap-6">
-  <!-- LOGO GLOBAL DU SITE -->
-  <div class="fixed left-6 top-6 z-50 md:left-10 md:top-8">
-    <img
-      src="/sagaverse-logo.png"
-      alt="SagaVerse"
-      style="
-        width: 95px;
-        height: 95px;
-        object-fit: contain;
-        opacity: .92;
-      "
-    />
-  </div>
+    <section class="mb-8 flex flex-wrap items-center justify-between gap-6">
+      <div class="flex items-center gap-5">
+        <img src="/sagaverse-logo.png" alt="SagaVerse" class="brand-logo-small" style="width:120px;height:120px;filter:drop-shadow(0 0 35px rgba(250,204,21,.45));" />
+        <h1 class="text-6xl font-black leading-none md:text-8xl">
+          <span class="gold-text">MCU</span>
+        </h1>
+      </div>
 
-  <!-- TITRE DE LA PAGE -->
-  <div class="pt-10 md:pl-28">
-    <h1
-      class="gold-text text-6xl font-black tracking-tight md:text-8xl"
-      style="line-height: .95;"
-    >
-      MCU
-    </h1>
-  </div>
-
-  <!-- PROGRESSION -->
-  <div class="min-w-[220px] rounded-3xl border border-yellow-300/10 bg-black/10 p-5 backdrop-blur-xl">
-    <p class="text-xs font-black uppercase tracking-widest text-slate-400">Progression</p>
-    <p id="progressText" class="mt-1 text-4xl font-black">0%</p>
-    <div class="mt-4 h-3 overflow-hidden rounded-full bg-white/10">
-      <div id="progressBar" class="h-full rounded-full bg-gradient-to-r from-yellow-400 to-amber-700 transition-all" style="width:0%"></div>
-    </div>
-    <div class="mt-3 flex justify-between text-xs font-bold text-slate-300">
-      <span id="seenText">0 vus</span>
-      <span id="remainingText">56 restants</span>
-    </div>
-  </div>
-</section>
+      <div class="min-w-[220px] rounded-3xl border border-yellow-300/15 bg-black/20 p-5">
+        <p class="text-xs font-black uppercase tracking-widest text-slate-400">Progression</p>
+        <p id="progressText" class="mt-1 text-4xl font-black">0%</p>
+        <div class="mt-4 h-3 overflow-hidden rounded-full bg-white/10">
+          <div id="progressBar" class="h-full rounded-full bg-gradient-to-r from-yellow-400 to-amber-700 transition-all" style="width:0%"></div>
+        </div>
+        <div class="mt-3 flex justify-between text-xs font-bold text-slate-300">
+          <span id="seenText">0 vus</span>
+          <span id="remainingText">56 restants</span>
+        </div>
+      </div>
+    </section>
 
     <section class="mb-5 grid gap-3 md:grid-cols-2">
       <div class="glass rounded-3xl p-5">
@@ -436,7 +463,7 @@
       </div>
     </section>
 
-    <section id="list" class="grid gap-3 md:grid-cols-2"></section>
+    <section id="list" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3"></section>
   </section>
   </main>
 
@@ -585,7 +612,7 @@ const items = [
         if (data.pseudo) {
           $("topAccountName").textContent = data.pseudo;
           $("homeTopAccountName").textContent = data.pseudo;
-          if ($("authStatus")) $("authStatus").textContent = `Synchronisé avec ${data.pseudo}.`;
+          $("authStatus").textContent = `Synchronisé avec ${data.pseudo}.`;
         }
       } else {
         checked = {};
@@ -649,7 +676,7 @@ const items = [
       $("homeUserTopBar").classList.add("hidden");
       $("homeUserTopBar").classList.remove("flex");
 
-      if ($("authStatus")) $("authStatus").textContent = "Connecte-toi pour synchroniser ta progression.";
+      $("authStatus").textContent = "Connecte-toi pour synchroniser ta progression.";
       render();
     }
 
@@ -671,7 +698,7 @@ const items = [
       const display = user.displayName || user.email;
       $("topAccountName").textContent = display;
       $("homeTopAccountName").textContent = display;
-      if ($("authStatus")) $("authStatus").textContent = user.displayName ? `Synchronisé avec ${user.displayName}.` : "Synchronisation automatique activée.";
+      $("authStatus").textContent = user.displayName ? `Synchronisé avec ${user.displayName}.` : "Synchronisation automatique activée.";
       $("loginPage").classList.add("hidden");
       $("signupPage").classList.add("hidden");
     }
@@ -747,15 +774,14 @@ const items = [
     }
 
     function render() {
-      const releasedItems = items.filter(([, , , year]) => typeof year !== "string");
-      const done = releasedItems.filter(([num]) => !!checked[num]).length;
-      const percent = Math.round((done / releasedItems.length) * 100);
-      const next = releasedItems.find(([num]) => !checked[num]);
+      const done = Object.values(checked).filter(Boolean).length;
+      const percent = Math.round((done / items.length) * 100);
+      const next = items.find(([num]) => !checked[num]);
 
       $("progressText").textContent = percent + "%";
       $("progressBar").style.width = percent + "%";
       $("seenText").textContent = done + " vus";
-      $("remainingText").textContent = (releasedItems.length - done) + " restants";
+      $("remainingText").textContent = (items.length - done) + " restants";
       $("nextTitle").textContent = next ? `${next[0]}. ${next[1]}` : "Tout est terminé ";
       $("nextMeta").textContent = next ? `${next[2] === "film" ? "Film" : "Série"} · ${next[3]}` : "Bravo";
 
@@ -782,7 +808,7 @@ const items = [
       }
 
       $("filtersSection").style.display = "block";
-      $("list").className = "grid gap-3 md:grid-cols-2";
+      $("list").className = "grid gap-3 md:grid-cols-2 xl:grid-cols-3";
 
       $("list").innerHTML = filteredItems.map(([num, title, type, year, tmdbId]) => {
         const isChecked = !!checked[num];
