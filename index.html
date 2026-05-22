@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MCU Watchlist</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root { color-scheme: dark; }
+
+    body {
+      min-height: 100vh;
+      color: white;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 18% 0%, rgba(250,204,21,.22), transparent 30%),
+        radial-gradient(circle at 85% 12%, rgba(88,28,135,.28), transparent 34%),
+        radial-gradient(circle at 50% 100%, rgba(37,99,235,.22), transparent 36%),
+        linear-gradient(135deg, #020617 0%, #050816 34%, #111827 64%, #030712 100%);
+    }
+
+    .glass {
+      background: linear-gradient(145deg, rgba(255,255,255,.08), rgba(250,204,21,.045));
+      border: 1px solid rgba(250,204,21,.18);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      opacity: .18;
+      background-image:
+        linear-gradient(rgba(255,255,255,.06) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(255,255,255,.06) 2px, transparent 2px);
+      background-size: 60px 60px;
+      transform: perspective(900px) rotateX(60deg) scale(2.2);
+      transform-origin: top;
+    }
+
+    .hero-art {
+      position: absolute;
+      right: -28px;
+      top: -30px;
+      width: 260px;
+      height: 260px;
+      opacity: .34;
+      pointer-events: none;
+      border-radius: 999px;
+      background: conic-gradient(from 120deg, #ff0080, #00d4ff, #ffe600, #8b5cf6, #ff0080);
+    }
+
+    .hero-art::after {
+      content: "";
+      position: absolute;
+      inset: 48px;
+      border-radius: 999px;
+      background: #050816;
+      border: 1px solid rgba(255,255,255,.18);
+    }
+
+    .film-strip {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .film-strip::before,
+    .film-strip::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 10px;
+      opacity: .30;
+      background-image: linear-gradient(90deg, rgba(255,255,255,.55) 9px, transparent 9px);
+      background-size: 32px 10px;
+      pointer-events: none;
+    }
+
+    .film-strip::before { top: 0; }
+    .film-strip::after { bottom: 0; }
+
+    .decor-card {
+      background: linear-gradient(145deg, rgba(15,23,42,.72), rgba(2,6,23,.78));
+      border: 1px solid rgba(255,255,255,.09);
+      box-shadow: 0 18px 45px rgba(0,0,0,.28);
+    }
+
+    .mini-poster-wall {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+    }
+
+    .mini-poster {
+      aspect-ratio: 2 / 3;
+      border-radius: 12px;
+      background: linear-gradient(145deg, var(--a), var(--b));
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 10px 25px rgba(0,0,0,.25);
+    }
+
+    .movie-button {
+      position: relative;
+      overflow: hidden;
+      background: rgba(10,16,32,.86);
+      border: 1px solid rgba(250,204,21,.13);
+      transition: .18s ease;
+    }
+
+    .movie-button::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.08) 45%, transparent 70%);
+      transform: translateX(-120%);
+      transition: transform .6s ease;
+      pointer-events: none;
+    }
+
+    .movie-button:hover::after {
+      transform: translateX(120%);
+    }
+
+    .movie-button:hover {
+      z-index: 2;
+      background: rgba(30,41,59,.92);
+      border-color: rgba(96,165,250,.55);
+      transform: translateY(-1px);
+    }
+
+    .movie-button.checked {
+      position: relative;
+      background: rgba(250,204,21,.12);
+      border-color: rgba(250,204,21,.58);
+      box-shadow:
+        0 0 12px rgba(250,204,21,.35),
+        0 0 24px rgba(250,204,21,.18),
+        inset 0 0 18px rgba(250,204,21,.08);
+    }
+
+    .movie-button.checked::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: 24px;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(250,204,21,.8), rgba(255,255,255,.15), rgba(250,204,21,.8));
+      -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      opacity: .9;
+    }
+
+    .poster-img {
+      transition: transform .25s ease, box-shadow .25s ease;
+      width: 58px;
+      height: 82px;
+      object-fit: cover;
+      background: #111827;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      flex-shrink: 0;
+    }
+
+    .movie-button:hover .poster-img {
+      transform: scale(1.12);
+      box-shadow: 0 20px 40px rgba(0,0,0,.45);
+    }
+
+    .animated-bg {
+      display: none !important;
+    }
+
+    .bubble {
+      display: none !important;
+    }
+
+    .bubble:nth-child(2) { animation-delay: -2s; }
+    .bubble:nth-child(3) { animation-delay: -4s; }
+    .bubble:nth-child(4) { animation-delay: -6s; }
+
+    @keyframes float {
+      0% { transform: translateY(0px) translateX(0px) scale(1); }
+      50% { transform: translateY(-30px) translateX(20px) scale(1.08); }
+      100% { transform: translateY(0px) translateX(0px) scale(1); }
+    }
+
+    .marvel-intro {
+      display: none !important;
+    }
+
+    .marvel-logo {
+      font-size: clamp(3rem, 10vw, 8rem);
+      font-weight: 900;
+      letter-spacing: .08em;
+      color: white;
+      text-shadow: 0 0 30px rgba(255,255,255,.25);
+      animation: logoZoom 2.4s ease forwards;
+    }
+
+    @keyframes logoZoom {
+      0% { opacity: 0; transform: scale(.6); }
+      40% { opacity: 1; transform: scale(1.08); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .page-transition {
+      animation: pageSwitch .35s ease;
+    }
+
+    @keyframes pageSwitch {
+      0% { opacity: 0; transform: translateY(10px) scale(.98); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes introFade {
+      0%,80% { opacity: 1; visibility: visible; }
+      100% { opacity: 0; visibility: hidden; }
+    }
+
+    .brand-logo {
+      width: 140px;
+      height: 140px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 24px rgba(250,204,21,.34));
+    }
+
+    .brand-logo-small {
+      width: 74px;
+      height: 74px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 18px rgba(250,204,21,.34));
+    }
+
+    .gold-text {
+      background: linear-gradient(90deg, #ffffff, #facc15, #d97706);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+
+<body>
+  <div class="marvel-intro">
+    <div class="marvel-logo">MCU</div>
+  </div>
+
+  <div class="animated-bg">
+    <div class="bubble top-[10%] left-[5%] h-72 w-72 bg-pink-500"></div>
+    <div class="bubble top-[25%] right-[8%] h-80 w-80 bg-cyan-400"></div>
+    <div class="bubble bottom-[10%] left-[25%] h-96 w-96 bg-purple-500"></div>
+    <div class="bubble bottom-[15%] right-[20%] h-64 w-64 bg-blue-500"></div>
+  </div>
+  <main class="relative mx-auto max-w-6xl px-4 pb-10 pt-5 md:px-8 md:pt-10">
+    <section id="homePage" class="mb-8">
+      <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <button id="homeMainBtn" class="rounded-2xl border border-white/10 bg-white/8 px-5 py-3 text-sm font-black text-slate-200 transition hover:bg-white/10">
+          🏠 Accueil
+        </button>
+
+        <div id="homeAuthTopBar" class="flex items-center gap-2">
+          <button id="homeOpenLoginBtn" class="rounded-2xl border border-white/10 bg-white/8 px-5 py-3 text-sm font-black text-slate-200 transition hover:bg-white/10">Connexion</button>
+          <button id="homeOpenSignupBtn" class="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-500">Inscription</button>
+        </div>
+
+        <div id="homeUserTopBar" class="hidden items-center gap-2 rounded-2xl border border-white/10 bg-white/8 px-4 py-2">
+          <span id="homeTopAccountName" class="text-sm font-black text-cyan-200"></span>
+          <button id="homeTopLogoutBtn" class="rounded-xl bg-red-600/80 px-3 py-2 text-xs font-black text-white">Déconnexion</button>
+        </div>
+      </div>
+      <div class="glass overflow-hidden rounded-[2.5rem] p-6 md:p-10">
+        <div class="mb-8 flex flex-col items-center text-center">
+          <img src="data:image/webp;base64,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" alt="SagaVerse" class="brand-logo mb-4" />
+          <p class="mb-3 text-xs font-black uppercase tracking-[0.3em] text-yellow-200">Choose your universe</p>
+          <h1 class="gold-text text-5xl font-black md:text-7xl">SagaVerse</h1>
+          <p class="mt-4 text-slate-300">Choisis une saga pour accéder à sa watchlist.</p>
+        </div>
+
+        <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <button id="mcuSagaBtn" class="group relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-red-900/60 to-black/40 p-5 text-left transition hover:scale-[1.02] hover:border-red-400/40">
+            <div class="absolute inset-0 bg-[url('https://image.tmdb.org/t/p/original/9BBTo63ANSmhC4e6r62OJFuK2GL.jpg')] bg-cover bg-center opacity-20 group-hover:opacity-30"></div>
+            <div class="relative">
+              <p class="text-xs font-black uppercase tracking-[0.25em] text-red-200">Marvel</p>
+              <h2 class="mt-2 text-3xl font-black">MCU Saga</h2>
+              <p class="mt-3 text-sm text-slate-300">Films, séries, multiverse et futurs projets.</p>
+            </div>
+          </button>
+
+          <div class="rounded-[2rem] border border-dashed border-white/10 bg-white/[0.03] p-5 opacity-60">
+            <p class="text-xs font-black uppercase tracking-[0.25em] text-slate-400">Bientôt</p>
+            <h2 class="mt-2 text-3xl font-black">Star Wars</h2>
+            <p class="mt-3 text-sm text-slate-400">Saga à venir.</p>
+          </div>
+
+          <div class="rounded-[2rem] border border-dashed border-white/10 bg-white/[0.03] p-5 opacity-60">
+            <p class="text-xs font-black uppercase tracking-[0.25em] text-slate-400">Bientôt</p>
+            <h2 class="mt-2 text-3xl font-black">Harry Potter</h2>
+            <p class="mt-3 text-sm text-slate-400">Saga à venir.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="mcuApp" style="display:none;">
+      <div id="topNav" class="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <button id="backBtn" class="rounded-2xl border border-white/10 bg-white/8 px-5 py-3 text-sm font-black text-slate-200 transition hover:bg-white/10">
+            ← Retour
+          </button>
+
+          <button id="homeBtn" class="rounded-2xl border border-white/10 bg-white/8 px-5 py-3 text-sm font-black text-slate-200 transition hover:bg-white/10">
+            🏠 Accueil
+          </button>
+        </div>
+
+        <div id="authTopBar" class="flex items-center gap-2">
+          <button id="openLoginBtn" class="rounded-2xl border border-white/10 bg-white/8 px-5 py-3 text-sm font-black text-slate-200 transition hover:bg-white/10">Connexion</button>
+          <button id="openSignupBtn" class="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-500">Inscription</button>
+        </div>
+
+        <div id="userTopBar" class="hidden items-center gap-2 rounded-2xl border border-white/10 bg-white/8 px-4 py-2">
+          <span id="topAccountName" class="text-sm font-black text-cyan-200"></span>
+          <button id="topLogoutBtn" class="rounded-xl bg-red-600/80 px-3 py-2 text-xs font-black text-white">Déconnexion</button>
+        </div>
+      </div>
+
+      <section id="loginPage" class="hidden mb-5">
+        <div class="glass mx-auto max-w-md rounded-[2rem] p-6">
+          <p class="mb-2 text-xs font-black uppercase tracking-widest text-blue-200">Connexion</p>
+          <h2 class="text-3xl font-black">Se connecter</h2>
+          <div class="mt-5 space-y-3">
+            <input id="loginPseudoInput" placeholder="Pseudo" class="w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm outline-none placeholder:text-slate-500 focus:border-blue-400" />
+            <input id="loginPasswordInput" type="password" placeholder="Mot de passe" class="w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm outline-none placeholder:text-slate-500 focus:border-blue-400" />
+            <button id="loginPageBtn" class="w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-black active:scale-[.98]">Connexion</button>
+            <button id="goSignupBtn" class="w-full rounded-2xl bg-white/8 px-4 py-3 text-sm font-black text-slate-300">Créer un compte</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="signupPage" class="hidden mb-5">
+        <div class="glass mx-auto max-w-md rounded-[2rem] p-6">
+          <p class="mb-2 text-xs font-black uppercase tracking-widest text-blue-200">Inscription</p>
+          <h2 class="text-3xl font-black">Créer un compte</h2>
+          <div class="mt-5 space-y-3">
+            <input id="signupPseudoInput" placeholder="Pseudo" class="w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm outline-none placeholder:text-slate-500 focus:border-blue-400" />
+            <input id="signupEmailInput" type="email" placeholder="Adresse mail" class="w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm outline-none placeholder:text-slate-500 focus:border-blue-400" />
+            <input id="signupPasswordInput" type="password" placeholder="Mot de passe" class="w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm outline-none placeholder:text-slate-500 focus:border-blue-400" />
+            <button id="signupPageBtn" class="w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-black active:scale-[.98]">Créer mon compte</button>
+            <button id="goLoginBtn" class="w-full rounded-2xl bg-white/8 px-4 py-3 text-sm font-black text-slate-300">J’ai déjà un compte</button>
+          </div>
+        </div>
+      </section>
+    <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+      <div class="absolute left-[-120px] top-[120px] h-72 w-72 rounded-full bg-pink-500/20 blur-3xl"></div>
+      <div class="absolute right-[-100px] top-[260px] h-80 w-80 rounded-full bg-cyan-400/20 blur-3xl"></div>
+      <div class="absolute bottom-[120px] left-[30%] h-96 w-96 rounded-full bg-purple-500/20 blur-3xl"></div>
+      <div class="absolute inset-x-0 top-[40%] h-px bg-gradient-to-r from-transparent via-cyan-300/30 to-transparent"></div>
+    </div>
+    <section class="glass film-strip relative mb-5 overflow-hidden rounded-[2.5rem] p-6 md:p-10">
+      
+      <div class="absolute left-8 top-8 text-7xl opacity-25 rotate-[-12deg]">🕷️</div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,.12),transparent_45%)]"></div>
+      <div class="absolute right-24 bottom-8 text-7xl opacity-20 rotate-[10deg]">⚡</div>
+      <div class="absolute left-1/2 top-10 text-5xl opacity-10">🛡️</div>
+      <div class="grid gap-6 md:grid-cols-[1fr_320px] md:items-end">
+        <div>
+          <div class="mb-3 flex items-center gap-4">
+            <img src="data:image/webp;base64,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" alt="SagaVerse" class="brand-logo-small" />
+            <div>
+              <p class="mb-2 text-xs font-black uppercase tracking-[0.25em] text-yellow-200">Marvel Cinematic Universe</p>
+              <h1 class="text-5xl font-black leading-none md:text-7xl">
+                MCU <span class="gold-text">Watchlist</span>
+              </h1>
+            </div>
+          </div>
+          <p class="mt-5 max-w-2xl text-sm leading-6 text-slate-200 md:text-base">
+            Boutons simples, affiches à gauche, progression sauvegardée et synchronisation par code secret.
+          </p>
+        </div>
+
+        <div class="rounded-3xl border border-white/10 bg-black/25 p-5">
+          <p class="text-xs font-black uppercase tracking-widest text-slate-400">Progression</p>
+          <p id="progressText" class="mt-1 text-5xl font-black">0%</p>
+          <div class="mt-4 h-3 overflow-hidden rounded-full bg-white/10">
+            <div id="progressBar" class="h-full rounded-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all" style="width:0%"></div>
+          </div>
+          <div class="mt-3 flex justify-between text-xs font-bold text-slate-300">
+            <span id="seenText">0 vus</span>
+            <span id="remainingText">56 restants</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-5 grid gap-3 md:grid-cols-3">
+      <div class="glass rounded-3xl p-5">
+        <p class="mb-2 text-xs font-black uppercase tracking-widest text-slate-400">Prochain</p>
+        <p id="nextTitle" class="text-lg font-black">1. Captain America: The First Avenger</p>
+        <p id="nextMeta" class="mt-1 text-sm font-bold text-blue-200">Film · 2011</p>
+      </div>
+
+      <div class="glass rounded-3xl p-5">
+        <p class="mb-3 text-xs font-black uppercase tracking-widest text-slate-400">Recherche</p>
+        <input id="searchInput" placeholder="Titre, année ou numéro..." class="w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm outline-none placeholder:text-slate-500 focus:border-blue-400" />
+      </div>
+
+      <div class="glass rounded-3xl p-5">
+        <p class="mb-3 text-xs font-black uppercase tracking-widest text-slate-400">Compte</p>
+        <p id="authStatus" class="text-sm font-bold text-slate-300">Connecte-toi pour synchroniser ta progression.</p>
+      </div>
+    </section>
+
+    <section class="mb-5 rounded-3xl border border-white/10 bg-slate-950/85 p-2 backdrop-blur-xl">
+      <div class="grid grid-cols-3 gap-2">
+        <button id="checklistPageBtn" class="rounded-2xl bg-blue-600 px-4 py-3 text-sm font-black text-white">Checklist</button>
+        <button id="synopsisPageBtn" class="rounded-2xl bg-white/8 px-4 py-3 text-sm font-black text-slate-300">Synopsis</button>
+        <button id="likedPageBtn" class="rounded-2xl bg-white/8 px-4 py-3 text-sm font-black text-pink-200">Titres likés ❤️</button>
+      </div>
+    </section>
+
+    <section id="filtersSection" class="sticky top-2 z-20 mb-5 rounded-3xl border border-white/10 bg-slate-950/85 p-2 backdrop-blur-xl md:static md:bg-transparent md:p-0">
+      <div class="no-scrollbar flex gap-2 overflow-x-auto md:grid md:grid-cols-6">
+        <button data-filter="all" class="filterBtn shrink-0 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-black">Tout</button>
+        <button data-filter="todo" class="filterBtn shrink-0 rounded-2xl bg-white/8 px-4 py-3 text-sm font-black text-slate-300">À voir</button>
+        <button data-filter="seen" class="filterBtn shrink-0 rounded-2xl bg-white/8 px-4 py-3 text-sm font-black text-slate-300">Vus</button>
+        <button data-filter="film" class="filterBtn shrink-0 rounded-2xl bg-white/8 px-4 py-3 text-sm font-black text-slate-300">Films</button>
+        <button data-filter="serie" class="filterBtn shrink-0 rounded-2xl bg-white/8 px-4 py-3 text-sm font-black text-slate-300">Séries</button>
+        
+        <button id="resetBtn" class="shrink-0 rounded-2xl border border-white/10 bg-white/8 px-4 py-3 text-sm font-black text-slate-300">Reset</button>
+      </div>
+    </section>
+
+    <section id="list" class="grid gap-3 md:grid-cols-2"></section>
+  </section>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBIy9YTkGGjsq8e56lR_KXbG7rGPj6bXMw",
+      authDomain: "mcu-checklist-a10d0.firebaseapp.com",
+      projectId: "mcu-checklist-a10d0",
+      storageBucket: "mcu-checklist-a10d0.firebasestorage.app",
+      messagingSenderId: "448480238346",
+      appId: "1:448480238346:web:75b1681b3752c670c378f3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const TMDB_API_KEY = "607ed67783c9362f2854faaca857f038";
+    const posterBase = "https://image.tmdb.org/t/p/w342";
+
+    const decorativePosters = `
+  <div class="pointer-events-none absolute inset-0 overflow-hidden opacity-[0.10]">
+    <div class="absolute top-10 left-6 rotate-[-12deg] text-7xl">🎬</div>
+    <div class="absolute top-24 right-10 rotate-[8deg] text-8xl">🦸</div>
+    <div class="absolute bottom-20 left-10 rotate-[10deg] text-7xl">🛡️</div>
+    <div class="absolute bottom-10 right-20 rotate-[-10deg] text-8xl">⚡</div>
+    <div class="absolute top-1/2 left-1/3 rotate-[18deg] text-6xl">🕷️</div>
+    <div class="absolute top-1/3 right-1/3 rotate-[-18deg] text-6xl">✨</div>
+  </div>
+`;
+
+document.body.insertAdjacentHTML('afterbegin', decorativePosters);
+
+const items = [
+      [1,"Captain America: The First Avenger","film",2011,1771],
+      [2,"Captain Marvel","film",2019,299537],
+      [3,"Iron Man","film",2008,1726],
+      [4,"Iron Man 2","film",2010,10138],
+      [5,"The Incredible Hulk","film",2008,1724],
+      [6,"Thor","film",2011,10195],
+      [7,"The Avengers","film",2012,24428],
+      [8,"Iron Man 3","film",2013,68721],
+      [9,"Thor: The Dark World","film",2013,76338],
+      [10,"Captain America: The Winter Soldier","film",2014,100402],
+      [11,"Guardians of the Galaxy","film",2014,118340],
+      [12,"Guardians of the Galaxy Vol. 2","film",2017,283995],
+      [13,"Avengers: Age of Ultron","film",2015,99861],
+      [14,"Ant-Man","film",2015,102899],
+      [15,"Captain America: Civil War","film",2016,271110],
+      [16,"Black Widow","film",2021,497698],
+      [17,"Black Panther","film",2018,284054],
+      [18,"Spider-Man: Homecoming","film",2017,315635],
+      [19,"Doctor Strange","film",2016,284052],
+      [20,"Thor: Ragnarok","film",2017,284053],
+      [21,"Ant-Man and the Wasp","film",2018,363088],
+      [22,"Avengers: Infinity War","film",2018,299536],
+      [23,"Avengers: Endgame","film",2019,299534],
+      [24,"Loki — Saison 1","serie",2021,84958],
+      [25,"WandaVision","serie",2021,85271],
+      [26,"The Falcon and the Winter Soldier","serie",2021,88396],
+      [27,"Shang-Chi and the Legend of the Ten Rings","film",2021,566525],
+      [28,"Spider-Man: Far From Home","film",2019,429617],
+      [29,"Eternals","film",2021,524434],
+      [30,"Spider-Man: No Way Home","film",2021,634649],
+      [31,"Hawkeye","serie",2021,88329],
+      [32,"Doctor Strange in the Multiverse of Madness","film",2022,453395],
+      [33,"Moon Knight","serie",2022,92749],
+      [34,"Ms. Marvel","serie",2022,92782],
+      [35,"Thor: Love and Thunder","film",2022,616037],
+      [36,"She-Hulk: Attorney at Law","serie",2022,92783],
+      [37,"Black Panther: Wakanda Forever","film",2022,505642],
+      [38,"Ant-Man and the Wasp: Quantumania","film",2023,640146],
+      [39,"Guardians of the Galaxy Vol. 3","film",2023,447365],
+      [40,"Secret Invasion","serie",2023,114472],
+      [41,"Loki — Saison 2","serie",2023,84958],
+      [42,"The Marvels","film",2023,609681],
+      [43,"Echo","serie",2024,122226],
+      [44,"Deadpool & Wolverine","film",2024,533535],
+      [45,"Agatha All Along","serie",2024,138501],
+      [46,"Captain America: Brave New World","film",2025,822119],
+      [47,"Thunderbolts*","film",2025,986056],
+      [48,"The Fantastic Four: First Steps","film",2025,617126],
+      [49,"Ironheart","serie",2025,114471],
+      [50,"Spider-Man: Brand New Day","film","31 juillet 2026",0],
+      [51,"Avengers: Doomsday","film","18 décembre 2026",1003598],
+      [52,"Blade","film","2027",593643],
+      [53,"Armor Wars","film","2027",0],
+      [54,"Shang-Chi 2","film","2027",0],
+      [55,"Avengers: Secret Wars","film","17 décembre 2027",1003596],
+      [56,"X-Men","film","Prochainement",0]
+    ];
+
+    const STORAGE_KEY = "mcu-watchlist-simple-images-v1";
+    const FAVORITES_KEY = "mcu-watchlist-likes-v1";
+    const USER_KEY_PREFIX = "mcu-user-progress-";
+
+    let checked = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    let favorites = JSON.parse(localStorage.getItem(FAVORITES_KEY) || "[]");
+    let currentUser = null;
+    let filter = "all";
+    let query = "";
+    let currentPage = "home";
+    let previousPage = "checklist";
+    let currentSaga = "mcu";
+    let unsubscribe = null;
+    let remoteReady = false;
+
+    const $ = (id) => document.getElementById(id);
+    
+
+    function getUserStorageKey() {
+      return currentUser ? USER_KEY_PREFIX + currentUser.uid : STORAGE_KEY;
+    }
+
+    function saveLocal() {
+      localStorage.setItem(getUserStorageKey(), JSON.stringify({ checked, favorites }));
+    }
+
+    async function saveRemote() {
+      if (!currentUser || !remoteReady) return;
+      await setDoc(doc(db, "users", currentUser.uid), {
+        pseudo: currentUser.displayName || "",
+        email: currentUser.email,
+        checked,
+        favorites,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+    }
+
+    async function loadUserData(user) {
+      currentUser = user;
+      remoteReady = false;
+
+      if (unsubscribe) unsubscribe();
+
+      const ref = doc(db, "users", user.uid);
+      const snap = await getDoc(ref);
+
+      if (snap.exists()) {
+        const data = snap.data();
+        checked = data.checked || {};
+        favorites = data.favorites || [];
+
+        if (data.pseudo) {
+          $("topAccountName").textContent = data.pseudo;
+          $("homeTopAccountName").textContent = data.pseudo;
+          $("authStatus").textContent = `Synchronisé avec ${data.pseudo}.`;
+        }
+      } else {
+        checked = {};
+        favorites = [];
+        await setDoc(ref, {
+          pseudo: user.displayName || "",
+          email: user.email,
+          checked,
+          favorites,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+      }
+
+      localStorage.setItem(getUserStorageKey(), JSON.stringify({ checked, favorites }));
+      remoteReady = true;
+
+      if (currentPage === "login" || currentPage === "signup") {
+        currentPage = previousPage && previousPage !== "home" ? previousPage : "checklist";
+        $("homePage").style.display = "none";
+        $("mcuApp").style.display = "block";
+        showMainApp();
+      }
+
+      unsubscribe = onSnapshot(ref, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          checked = data.checked || {};
+          favorites = data.favorites || [];
+          localStorage.setItem(getUserStorageKey(), JSON.stringify({ checked, favorites }));
+          render();
+        }
+      });
+
+      render();
+    }
+
+    function showLoggedOut() {
+      currentUser = null;
+      remoteReady = false;
+      if (unsubscribe) unsubscribe();
+
+      checked = {};
+      favorites = [];
+
+      $("authTopBar").classList.remove("hidden");
+      $("authTopBar").classList.add("flex");
+      $("userTopBar").classList.add("hidden");
+      $("userTopBar").classList.remove("flex");
+
+      $("homeAuthTopBar").classList.remove("hidden");
+      $("homeAuthTopBar").classList.add("flex");
+      $("homeUserTopBar").classList.add("hidden");
+      $("homeUserTopBar").classList.remove("flex");
+
+      $("authStatus").textContent = "Connecte-toi pour synchroniser ta progression.";
+      render();
+    }
+
+    function pseudoId(pseudo) {
+      return pseudo.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "-");
+    }
+
+    function showLoggedIn(user) {
+      $("authTopBar").classList.add("hidden");
+      $("authTopBar").classList.remove("flex");
+      $("userTopBar").classList.remove("hidden");
+      $("userTopBar").classList.add("flex");
+
+      $("homeAuthTopBar").classList.add("hidden");
+      $("homeAuthTopBar").classList.remove("flex");
+      $("homeUserTopBar").classList.remove("hidden");
+      $("homeUserTopBar").classList.add("flex");
+
+      const display = user.displayName || user.email;
+      $("topAccountName").textContent = display;
+      $("homeTopAccountName").textContent = display;
+      $("authStatus").textContent = user.displayName ? `Synchronisé avec ${user.displayName}.` : "Synchronisation automatique activée.";
+      $("loginPage").classList.add("hidden");
+      $("signupPage").classList.add("hidden");
+    }
+
+    async function getPosterById(type, tmdbId, item) {
+      try {
+        const endpoint = type === "serie" ? "tv" : "movie";
+        const response = await fetch(`https://api.themoviedb.org/3/${endpoint}/${tmdbId}?api_key=${TMDB_API_KEY}&language=fr-FR`);
+        const data = await response.json();
+
+        if (data.poster_path) {
+          item.posterUrl = posterBase + data.poster_path;
+        }
+
+        item.rating = data.vote_average;
+        item.overview = data.overview || "Synopsis indisponible.";
+      } catch (e) {
+        item.rating = null;
+      }
+    }
+
+    async function preloadPosters() {
+      await Promise.all(items.map(async (item) => {
+        await getPosterById(item[2], item[4], item);
+      }));
+    }
+
+    function updatePageButtons() {
+      $("likedPageBtn").className = currentPage === "liked"
+        ? "rounded-2xl bg-pink-600 px-4 py-3 text-sm font-black text-white"
+        : "rounded-2xl bg-white/8 px-4 py-3 text-sm font-black text-pink-200";
+
+      $("checklistPageBtn").className = currentPage === "checklist"
+        ? "rounded-2xl bg-blue-600 px-4 py-3 text-sm font-black text-white"
+        : "rounded-2xl bg-white/8 px-4 py-3 text-sm font-black text-slate-300";
+
+      $("synopsisPageBtn").className = currentPage === "synopsis"
+        ? "rounded-2xl bg-blue-600 px-4 py-3 text-sm font-black text-white"
+        : "rounded-2xl bg-white/8 px-4 py-3 text-sm font-black text-slate-300";
+    }
+
+    function renderSynopsis(filteredItems) {
+      $("filtersSection").style.display = "none";
+
+      $("list").className = "grid gap-4";
+      $("list").innerHTML = filteredItems.map(([num, title, type, year]) => {
+        const item = items.find(i => i[0] === num);
+        const rating = item?.rating?.toFixed(1) || "?";
+        const poster = item?.posterUrl || "";
+        const overview = item?.overview || "Synopsis indisponible.";
+
+        return `
+          <article class="movie-button rounded-3xl p-4 md:p-5">
+            <div class="flex gap-4">
+              <img class="poster-img !h-32 !w-24 md:!h-40 md:!w-28" src="${poster}" alt="${title}" loading="lazy" onerror="this.style.display='none'" />
+              <div class="min-w-0 flex-1">
+                <div class="mb-2 flex flex-wrap items-center gap-2">
+                  <span class="rounded-full bg-blue-600 px-2.5 py-1 text-xs font-black">${num}</span>
+                  <span class="rounded-full bg-white/8 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-slate-300">${type === "film" ? "Film" : "Série"}</span>
+                  <span class="text-xs font-bold text-slate-400">${year}</span>
+                  <span class="text-sm font-black text-yellow-300">⭐ ${rating}</span>
+                </div>
+                <h2 class="text-xl font-black text-white md:text-2xl">${title}</h2>
+                <p class="mt-3 text-sm leading-6 text-slate-300 md:text-base">${overview}</p>
+                
+                
+                
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function render() {
+      const done = Object.values(checked).filter(Boolean).length;
+      const percent = Math.round((done / items.length) * 100);
+      const next = items.find(([num]) => !checked[num]);
+
+      $("progressText").textContent = percent + "%";
+      $("progressBar").style.width = percent + "%";
+      $("seenText").textContent = done + " vus";
+      $("remainingText").textContent = (items.length - done) + " restants";
+      $("nextTitle").textContent = next ? `${next[0]}. ${next[1]}` : "Tout est terminé 🎉";
+      $("nextMeta").textContent = next ? `${next[2] === "film" ? "Film" : "Série"} · ${next[3]}` : "Bravo";
+
+      document.querySelectorAll(".filterBtn").forEach((button) => {
+        const active = button.dataset.filter === filter;
+        button.className = active
+          ? "filterBtn shrink-0 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-black text-white"
+          : "filterBtn shrink-0 rounded-2xl bg-white/8 px-4 py-3 text-sm font-black text-slate-300 hover:bg-white/10";
+      });
+
+      const q = query.toLowerCase().trim();
+      const filteredItems = items.filter(([num, title, type, year]) => {
+        if (currentPage === "synopsis" && typeof year === 'string') return false;
+        const matchesSearch = title.toLowerCase().includes(q) || String(num).includes(q) || String(year).includes(q);
+        const matchesFilter = filter === "all" || type === filter || (filter === "seen" && checked[num]) || (filter === "todo" && !checked[num]);
+        return matchesSearch && matchesFilter;
+      });
+
+      updatePageButtons();
+
+      if (currentPage === "synopsis") {
+        renderSynopsis(filteredItems);
+        return;
+      }
+
+      $("filtersSection").style.display = "block";
+      $("list").className = "grid gap-3 md:grid-cols-2";
+
+      $("list").innerHTML = filteredItems.map(([num, title, type, year, tmdbId]) => {
+        const isChecked = !!checked[num];
+        const upcoming = typeof year === 'string';
+
+        return `
+          <div ${upcoming ? '' : `data-num="${num}"`} class="${upcoming ? 'movie-button flex items-center gap-4 rounded-3xl p-3 text-left opacity-80' : `watchCard movie-button ${isChecked ? "checked" : ""} flex items-center gap-4 rounded-3xl p-3 text-left active:scale-[.99] cursor-pointer`}">
+            ${typeof year === 'string'
+              ? ''
+              : `<img class="poster-img" src="${items.find(i => i[0] === num)?.posterUrl || ''}" alt="${title}" loading="lazy" onerror="this.style.display='none'" />`}
+            <div class="min-w-0 flex-1">
+              <div class="mb-1 flex items-center gap-2">
+                <span class="rounded-full bg-blue-600 px-2.5 py-1 text-xs font-black">${num}</span>
+                <span class="rounded-full bg-white/8 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-slate-300">${type === "film" ? "Film" : "Série"}</span>
+                <span class="text-xs font-bold text-slate-400">${year}</span>
+              </div>
+              <h2 class="truncate text-base font-black md:text-lg ${isChecked ? "text-yellow-100" : "text-white"}">${title}</h2>
+              ${typeof year === 'string' ? '<p class="mt-1 text-xs font-black text-cyan-300 uppercase tracking-wider">Prochainement</p>' : `<p class="mt-1 text-sm font-black text-yellow-300">⭐ ${items.find(i => i[0] === num)?.rating?.toFixed(1) || "?"}</p>`}
+            </div>
+            ${typeof year === 'string'
+            ? ''
+            : `<div class="flex flex-col items-center gap-2">
+                <button data-fav="${num}" class="favoriteBtn grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-pink-500/15 text-lg transition hover:scale-110">${favorites.includes(num) ? "❤️" : "🤍"}</button>
+                <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl border-2 text-sm font-black ${isChecked ? "border-yellow-300 bg-yellow-300 text-black" : "border-white/20 text-transparent"}">✓</div>
+              </div>`}
+          </div>
+        `;
+      }).join("");
+
+      document.querySelectorAll(".favoriteBtn").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const num = Number(btn.dataset.fav);
+          if (favorites.includes(num)) {
+            favorites = favorites.filter(f => f !== num);
+          } else {
+            favorites.push(num);
+          }
+          localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+          render();
+        });
+      });
+
+      document.querySelectorAll(".watchCard").forEach((card) => {
+        card.addEventListener("click", async () => {
+          const num = card.dataset.num;
+          checked[num] = !checked[num];
+          saveLocal();
+          render();
+          await saveRemote();
+        });
+      });
+    }
+
+    $("searchInput").addEventListener("input", (event) => {
+      query = event.target.value;
+      render();
+    });
+
+    function showMainApp() {
+      $("loginPage").classList.add("hidden");
+      $("signupPage").classList.add("hidden");
+
+      [...$("mcuApp").children].forEach((child) => {
+        if (!["topNav", "loginPage", "signupPage"].includes(child.id)) {
+          child.style.display = "";
+        }
+      });
+    }
+
+    function showAuthOnly(page) {
+      [...$("mcuApp").children].forEach((child) => {
+        if (!["topNav", "loginPage", "signupPage"].includes(child.id)) {
+          child.style.display = "none";
+        }
+      });
+
+      $("filtersSection").style.display = "none";
+      $("list").innerHTML = "";
+      $("loginPage").classList.toggle("hidden", page !== "login");
+      $("signupPage").classList.toggle("hidden", page !== "signup");
+    }
+
+    function showLoginPage() {
+      if (currentPage !== "login" && currentPage !== "signup") previousPage = currentPage;
+      currentPage = "login";
+      $("homePage").style.display = "none";
+      $("mcuApp").style.display = "block";
+      showAuthOnly("login");
+    }
+
+    function showSignupPage() {
+      if (currentPage !== "login" && currentPage !== "signup") previousPage = currentPage;
+      currentPage = "signup";
+      $("homePage").style.display = "none";
+      $("mcuApp").style.display = "block";
+      showAuthOnly("signup");
+    }
+
+    $("openLoginBtn").addEventListener("click", showLoginPage);
+    $("openSignupBtn").addEventListener("click", showSignupPage);
+    $("goSignupBtn").addEventListener("click", showSignupPage);
+    $("goLoginBtn").addEventListener("click", showLoginPage);
+
+    $("signupPageBtn").addEventListener("click", async () => {
+      const pseudo = $("signupPseudoInput").value.trim();
+      const email = $("signupEmailInput").value.trim();
+      const password = $("signupPasswordInput").value;
+      const usernameId = pseudoId(pseudo);
+
+      if (!pseudo || usernameId.length < 3 || !email || password.length < 6) {
+        alert("Mets un pseudo d’au moins 3 caractères, une adresse mail et un mot de passe d’au moins 6 caractères.");
+        return;
+      }
+
+      try {
+        const pseudoRef = doc(db, "usernames", usernameId);
+        const pseudoSnap = await getDoc(pseudoRef);
+
+        console.log("Pseudo recherché:", usernameId);
+
+        if (pseudoSnap.exists()) {
+          alert("Ce pseudo est déjà utilisé. Choisis-en un autre.");
+          return;
+        }
+
+        const result = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(result.user, { displayName: pseudo });
+
+        await setDoc(doc(db, "users", result.user.uid), {
+          pseudo,
+          pseudoId: usernameId,
+          email,
+          checked: {},
+          favorites: [],
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+
+        await setDoc(pseudoRef, {
+          uid: result.user.uid,
+          pseudo,
+          email,
+          createdAt: serverTimestamp()
+        });
+
+        alert("Compte créé avec succès ! Tu peux maintenant te connecter.");
+      } catch (error) {
+        if (error.code === "auth/email-already-in-use") {
+          alert("Cette adresse mail est déjà utilisée. Connecte-toi ou utilise une autre adresse.");
+        } else {
+          alert("Erreur création compte : " + error.message);
+        }
+      }
+    });
+
+    $("loginPageBtn").addEventListener("click", async () => {
+      const pseudo = $("loginPseudoInput").value.trim();
+      const password = $("loginPasswordInput").value;
+      const usernameId = pseudoId(pseudo);
+
+      if (!pseudo || !password) {
+        alert("Entre ton pseudo et ton mot de passe.");
+        return;
+      }
+
+      try {
+        const pseudoSnap = await getDoc(doc(db, "usernames", usernameId));
+
+        if (!pseudoSnap.exists()) {
+          alert("Aucun compte avec ce pseudo. Crée d’abord un compte.");
+          return;
+        }
+
+        const email = pseudoSnap.data().email;
+        console.log("Connexion avec:", email);
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (error) {
+        alert("Pseudo ou mot de passe incorrect.");
+      }
+    });
+
+    $("topLogoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+    });
+
+    $("homeTopLogoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+    });
+
+    $("homeOpenLoginBtn").addEventListener("click", showLoginPage);
+    $("homeOpenSignupBtn").addEventListener("click", showSignupPage);
+
+    $("checklistPageBtn").addEventListener("click", () => {
+      currentPage = "checklist";
+      showMainApp();
+      render();
+    });
+
+    $("synopsisPageBtn").addEventListener("click", () => {
+      currentPage = "synopsis";
+      showMainApp();
+      render();
+    });
+
+    function renderLiked() {
+      showMainApp();
+      currentPage = "liked";
+      updatePageButtons();
+      $("filtersSection").style.display = "none";
+
+      const likedItems = items.filter(([num]) => favorites.includes(num));
+
+      $("list").className = "grid gap-4";
+
+      if (likedItems.length === 0) {
+        $("list").innerHTML = `
+          <div class="glass rounded-3xl p-6 text-center md:col-span-2">
+            <p class="text-3xl">❤️</p>
+            <h2 class="mt-3 text-2xl font-black">Aucun film liké</h2>
+            <p class="mt-2 text-slate-300">Clique sur le cœur à côté d’un film pour l’ajouter ici.</p>
+          </div>
+        `;
+        return;
+      }
+
+      $("list").innerHTML = likedItems.map(([num, title, type, year]) => {
+        const item = items.find(i => i[0] === num);
+        const rating = item?.rating?.toFixed(1) || "?";
+        const poster = item?.posterUrl || "";
+        const overview = item?.overview || "Synopsis indisponible.";
+
+        return `
+          <article class="movie-button rounded-3xl p-4 md:p-5 page-transition">
+            <div class="flex gap-4">
+              <img class="poster-img !h-32 !w-24 md:!h-40 md:!w-28" src="${poster}" alt="${title}" loading="lazy" onerror="this.style.display='none'" />
+              <div class="min-w-0 flex-1">
+                <div class="mb-2 flex flex-wrap items-center gap-2">
+                  <span class="rounded-full bg-pink-600 px-2.5 py-1 text-xs font-black">LIKÉ</span>
+                  <span class="rounded-full bg-white/8 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-slate-300">${type === "film" ? "Film" : "Série"}</span>
+                  <span class="text-xs font-bold text-slate-400">${year}</span>
+                  <span class="text-sm font-black text-yellow-300">⭐ ${rating}</span>
+                </div>
+                <h2 class="text-xl font-black text-white md:text-2xl">${title}</h2>
+                
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    $("likedPageBtn").addEventListener("click", renderLiked);
+
+    $("resetBtn").addEventListener("click", async () => {
+      if (confirm("Tout décocher ?")) {
+        checked = {};
+        saveLocal();
+        render();
+        await saveRemote();
+      }
+    });
+
+    document.querySelectorAll(".filterBtn").forEach((button) => {
+      button.addEventListener("click", () => {
+        filter = button.dataset.filter;
+        render();
+      });
+    });
+
+    $("backBtn").addEventListener("click", () => {
+      if (currentPage === "login" || currentPage === "signup") {
+        if (previousPage === "home") {
+          $("loginPage").classList.add("hidden");
+          $("signupPage").classList.add("hidden");
+          $("mcuApp").style.display = "none";
+          $("homePage").style.display = "block";
+          currentPage = "home";
+          return;
+        }
+
+        currentPage = previousPage || "checklist";
+        showMainApp();
+        render();
+        return;
+      }
+
+      if (currentPage === "synopsis" || currentPage === "liked") {
+        currentPage = "checklist";
+        showMainApp();
+        render();
+        return;
+      }
+
+      $("mcuApp").style.display = "none";
+      $("homePage").style.display = "block";
+      currentPage = "home";
+    });
+
+    $("homeBtn").addEventListener("click", () => {
+      $("loginPage").classList.add("hidden");
+      $("signupPage").classList.add("hidden");
+      $("mcuApp").style.display = "none";
+      $("homePage").style.display = "block";
+      currentPage = "home";
+    });
+
+    $("mcuSagaBtn").addEventListener("click", () => {
+      currentSaga = "mcu";
+      currentPage = "checklist";
+      $("loginPage").classList.add("hidden");
+      $("signupPage").classList.add("hidden");
+      $("homePage").style.display = "none";
+      $("mcuApp").style.display = "block";
+      showMainApp();
+      render();
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        showLoggedIn(user);
+        await loadUserData(user);
+      } else {
+        showLoggedOut();
+      }
+    });
+
+    preloadPosters().then(() => {
+      render();
+    });
+  </script>
+</body>
+</html>
