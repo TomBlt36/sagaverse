@@ -1,15 +1,24 @@
-const express = require("express");
+const http = require("http");
+const fs = require("fs");
 const path = require("path");
 
-const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.static(__dirname));
+const server = http.createServer((req, res) => {
+  const filePath = path.join(__dirname, "index.html");
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+  fs.readFile(filePath, "utf8", (err, content) => {
+    if (err) {
+      res.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
+      res.end("Erreur : index.html introuvable");
+      return;
+    }
+
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    res.end(content);
+  });
 });
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`SagaVerse is running on port ${PORT}`);
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`SagaVerse running on port ${PORT}`);
 });
